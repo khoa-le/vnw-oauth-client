@@ -16,7 +16,7 @@ use Http\Client\HttpClient;
  * Class VnwApi
  * @package VNW
  */
-class VnwRestAPI
+class VnwApi
 {
     /**
      * @var RestClient

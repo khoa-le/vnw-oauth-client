@@ -2,6 +2,13 @@
     "name": "khoalengoc/vnw-oauth-client",
     "description": "VietnamWorks OAuth Client PHP Library",
     "type": "package",
+    "require": {
+        "php": "^5.5|^7.0",
+        "php-http/guzzle6-adapter": "^1.0",
+
+        "php-http/httplug": "^1.0",
+        "guzzlehttp/guzzle": "^6.0"
+    },
     "package": {
         "name": "khoalengoc/vnw-oauth-client",
         "version": "dev-master",
@@ -16,12 +23,7 @@
             }
         }
     },
-    "require": {
-        "php-http/guzzle6-adapter": "^1.0",
-        "php": "5.5.0",
-        "php-http/httplug": "^1.0",
-        "guzzlehttp/guzzle": "^6.0"
-    },
+
     "authors": [
         {
             "name": "Khoa, Le Ngoc",

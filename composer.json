@@ -1,5 +1,5 @@
 {
-    "name": "khoalengoc/vnw-oauth-client",
+    "name": "vietnamworks/vnw-oauth-client",
     "description": "VietnamWorks OAuth Client PHP Library",
     "require": {
         "php": "^5.5|^7.0",
@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-0" : {
-            "VietnamWorks\\" : "src/"
+            "VietnamWorks" : "src/"
         }
     },
     "authors": [

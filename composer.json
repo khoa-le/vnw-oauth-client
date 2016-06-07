@@ -1,0 +1,17 @@
+{
+    "name": "khoalengoc/vnw-oauth-client",
+    "description": "VietnamWork OAuth Client PHP Library",
+    "type": "package",
+    "require": {
+        "php-http/guzzle6-adapter": "^1.0",
+        "php": "5.5.0",
+        "php-http/httplug": "^1.0",
+        "guzzlehttp/guzzle": "^6.0"
+    },
+    "authors": [
+        {
+            "name": "Khoa, Le Ngoc",
+            "email": "khoaln6@gmail.com"
+        }
+    ]
+}

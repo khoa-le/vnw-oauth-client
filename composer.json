@@ -19,7 +19,7 @@
         },
         "autoload": {
             "psr-0" : {
-                "VNW\\VnwApi" : "src"
+                "VietnamWorks" : "src"
             }
         }
     },

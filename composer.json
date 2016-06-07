@@ -2,6 +2,20 @@
     "name": "khoalengoc/vnw-oauth-client",
     "description": "VietnamWorks OAuth Client PHP Library",
     "type": "package",
+    "package": {
+        "name": "khoalengoc/vnw-oauth-client",
+        "version": "dev-master",
+        "source": {
+            "url": "git://github.com/khoa-le/vnw-oauth-client.git",
+            "type": "git",
+            "reference": "master"
+        },
+        "autoload": {
+            "psr-0" : {
+                "VNW\\VnwApi" : "src"
+            }
+        }
+    },
     "require": {
         "php-http/guzzle6-adapter": "^1.0",
         "php": "5.5.0",

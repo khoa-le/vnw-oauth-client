@@ -44,7 +44,7 @@ class VnwRestClient
      * If we should use SSL or not
      * @var bool
      */
-    protected $sslEnabled = false;
+    protected $sslEnabled = true;
 
     protected $accessToken = null;
 

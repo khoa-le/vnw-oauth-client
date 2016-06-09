@@ -1,6 +1,6 @@
 {
-    "name": "vietnamworks/vnw-oauth-client",
-    "description": "VietnamWorks OAuth Client PHP Library",
+    "name": "vietnamworks/webservice-client",
+    "description": "VietnamWorks Webservice Client PHP Library",
     "require": {
         "php": "^5.5|^7.0",
         "php-http/guzzle6-adapter": "^1.0",
@@ -17,5 +17,6 @@
             "name": "Khoa, Le Ngoc",
             "email": "khoaln6@gmail.com"
         }
-    ]
+    ],
+    "minimum-stability": "stable"
 }

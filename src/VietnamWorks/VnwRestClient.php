@@ -14,9 +14,18 @@ use GuzzleHttp\Psr7\Request;
 use Http\Client\HttpClient;
 use Http\Discovery\HttpClientDiscovery;
 use Psr\Http\Message\ResponseInterface;
+use VietnamWorks\Constants\ExceptionMessages;
+use VietnamWorks\Exceptions\ExpiredToken;
+use VietnamWorks\Exceptions\GenericHTTPError;
+use VietnamWorks\Exceptions\InvalidCredentials;
+use VietnamWorks\Exceptions\MissingEndpoint;
+use VietnamWorks\Exceptions\MissingRequiredParameters;
 
 class VnwRestClient
 {
+    /**
+     * @var HttpClient|null
+     */
     protected $httpClient;
 
     /**
@@ -46,8 +55,23 @@ class VnwRestClient
      */
     protected $sslEnabled = true;
 
+    /**
+     * @var null
+     */
     protected $accessToken = null;
 
+    /**
+     * @var null
+     */
+    protected $tokenStorage=null;
+
+
+    /**
+     * @param $apiKey
+     * @param $apiSecret
+     * @param $apiHost
+     * @param HttpClient|null $httpClient
+     */
     public function __construct($apiKey, $apiSecret, $apiHost, HttpClient $httpClient = null)
     {
         $this->apiKey = $apiKey;
@@ -56,6 +80,20 @@ class VnwRestClient
         $this->httpClient = $httpClient;
     }
 
+    /**
+     * @param $method
+     * @param $uri
+     * @param string $accessToken
+     * @param null $body
+     * @param array $headers
+     * @param array $files
+     * @return \stdClass
+     * @throws ExpiredToken
+     * @throws GenericHTTPError
+     * @throws InvalidCredentials
+     * @throws MissingEndpoint
+     * @throws MissingRequiredParameters
+     */
     public function send($method, $uri, $accessToken='', $body = null, $headers = array(),$files=array())
     {
         if (!empty($accessToken)) {
@@ -73,11 +111,24 @@ class VnwRestClient
         return $this->responseHandler($response);
     }
 
+    /**
+     * @param $endpointUrl
+     * @param string $accessToken
+     * @param array $queryString
+     * @return \stdClass
+     */
     public function get($endpointUrl, $accessToken = '' ,$queryString = array())
     {
         return $this->send('GET',$endpointUrl.'?'.http_build_query($queryString) , $accessToken);
     }
 
+    /**
+     * @param $endpointUrl
+     * @param $accessToken
+     * @param array $postData
+     * @param array $files
+     * @return \stdClass
+     */
     public function post($endpointUrl, $accessToken, $postData = array(), $files = array())
     {
         $postDataMultipart = [];
@@ -85,7 +136,6 @@ class VnwRestClient
             'name'=>'json',
             'contents'=>json_encode($postData)
         );
-
 
         $body['json'] = json_encode($postData);
         if (!empty($files)) {
@@ -99,6 +149,58 @@ class VnwRestClient
         return $this->send('POST', $endpointUrl, $accessToken, [],[],$postDataMultipart);
     }
 
+
+    /**
+     * @param ResponseInterface $response
+     * @return \stdClass
+     * @throws ExpiredToken
+     * @throws GenericHTTPError
+     * @throws InvalidCredentials
+     * @throws MissingEndpoint
+     * @throws MissingRequiredParameters
+     */
+    private function responseHandler(ResponseInterface $response)
+    {
+        $httpResponseCode = $response->getStatusCode();
+        $result = new \stdClass();
+        $data = (string)$response->getBody();
+        $jsonResponseData = json_decode($data, false);
+
+        if ($httpResponseCode == 200) {
+            // return response data as json if possible, raw if not
+            $result->http_response_body = $data && $jsonResponseData === null ? $data : $jsonResponseData;
+        }elseif ($httpResponseCode == 400) {
+            throw new MissingRequiredParameters(ExceptionMessages::EXCEPTION_MISSING_REQUIRED_PARAMETERS.$this->getResponseExceptionMessage($response));
+        } elseif ($httpResponseCode == 401) {
+            if($jsonResponseData->error=='invalid_grant'){
+                throw new ExpiredToken(ExceptionMessages::EXCEPTION_INVALID_CREDENTIALS);
+            }else{
+                throw new InvalidCredentials(ExceptionMessages::EXCEPTION_INVALID_CREDENTIALS);
+            }
+        } elseif ($httpResponseCode == 404) {
+            throw new MissingEndpoint(ExceptionMessages::EXCEPTION_MISSING_ENDPOINT.$this->getResponseExceptionMessage($response));
+        } else {
+            throw new GenericHTTPError(ExceptionMessages::EXCEPTION_GENERIC_HTTP_ERROR, $httpResponseCode, $response->getBody());
+        }
+
+        $result->http_response_code = $httpResponseCode;
+
+        return $result;
+    }
+
+    /**
+     * @param ResponseInterface $responseObj
+     *
+     * @return string
+     */
+    protected function getResponseExceptionMessage(ResponseInterface $responseObj)
+    {
+        $body = (string) $responseObj->getBody();
+        $response = json_decode($body);
+        if (json_last_error() == JSON_ERROR_NONE && isset($response->message)) {
+            return ' '.$response->message;
+        }
+    }
 
     /**
      *
@@ -174,19 +276,21 @@ class VnwRestClient
         }
     }
 
-
-    private function responseHandler(ResponseInterface $response)
+    /**
+     * @return null
+     */
+    public function getTokenStorage()
     {
-        $httpResponseCode = $response->getStatusCode();
-        $result = new \stdClass();
-        $data = (string)$response->getBody();
-        $jsonResponseData = json_decode($data, false);
-
-        // return response data as json if possible, raw if not
-        $result->http_response_body = $data && $jsonResponseData === null ? $data : $jsonResponseData;
-        $result->http_response_code = $httpResponseCode;
-
-        return $result;
+        return $this->tokenStorage;
     }
+
+    /**
+     * @param null $tokenStorage
+     */
+    public function setTokenStorage(TokenStorageInterface $tokenStorage)
+    {
+        $this->tokenStorage = $tokenStorage;
+    }
+
 
 }
